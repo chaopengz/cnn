@@ -159,7 +159,7 @@ def model_train(data_file, model_str, model_weights, nb_classes, width):
     save_model(model, model_str, model_weights)
 
 
-def model_predict(file_name, model_str, model_weights, width):
+def model_predict(file_name, model_str, model_weights,nb_classes, width):
     # Test perform in test dataSet
     model = load_model(model_str, model_weights, width, nb_classes)
     img = Image.open(file_name)
@@ -176,7 +176,7 @@ def model_predict(file_name, model_str, model_weights, width):
     return data, predicted_classes
 
 
-def feedback_train(data, predicted_classes, is_true, model_str, model_weights, width):
+def feedback_train(data, predicted_classes, is_true, model_str, model_weights,nb_classes, width):
     label = np.empty((1, 1), dtype="uint8")
     sample_weight = np.empty((1, ), dtype="uint8")
     if is_true == 0:
@@ -200,6 +200,6 @@ if __name__ == '__main__':
     # for i in range(2): convert_data(origin_dir, train_data, width, nb_classes)
     # model_train(train_data, model_str, model_weights, nb_classes, width)
 
-    data, predicted_classes = model_predict(test_file, model_str, model_weights, width)
+    data, predicted_classes = model_predict(test_file, model_str, model_weights, nb_classes,width)
     print predicted_classes
-    feedback_train(data, predicted_classes, 1, model_str, model_weights, width)
+    feedback_train(data, predicted_classes, 1, model_str, model_weights, nb_classes,width)
