@@ -9,6 +9,8 @@ from keras.optimizers import SGD
 from keras.callbacks import Callback
 from keras.preprocessing.image import ImageDataGenerator
 from sklearn.cross_validation import train_test_split
+from sklearn.metrics import classification_report
+from sklearn.metrics import precision_recall_curve, roc_curve, auc
 from keras.utils import np_utils
 from PIL import Image,ImageShow
 import os.path, glob, cPickle
@@ -165,7 +167,13 @@ def model_test(data_file,model_str, model_weights, nb_classes, width):
     y_test = np_utils.to_categorical(y_test, nb_classes)
     model = load_model(model_str, model_weights, width, nb_classes)
     test_score = model.evaluate(x_test, y_test, verbose=0)
-    print 'test_score', test_score
+    predicted_classes  = model.predict_classes(x_test)
+    answer = np_utils.to_categorical(predicted_classes, nb_classes)
+    for i in range(6):
+    	 precision, recall, thresholds = precision_recall_curve(y_test[:,i], answer[:,i])
+   	 report = answer[:,i] > 0.5
+   	 print(classification_report(y_test[:,i], report,target_names = ['neg', 'pos']))
+   	 print 'test_score', test_score
 	
 
 def model_predict(file_name, model_str, model_weights,nb_classes, width):
