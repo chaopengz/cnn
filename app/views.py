@@ -41,13 +41,15 @@ def getResult(request):
     global data, predicted_class
     width = 50
     nb_classes = 6
-    model_str = 'model/model.json'
-    model_weights = 'model/weights_6.h5'
+    model_str = '/home/ubuntu/flower/app/model/model.json'
+    model_weights = '/home/ubuntu/flower/app/model/weights_6.h5'
     if request.method == 'POST':
-        result = request.POST['result']
-        type = request.POST['type']
+        result = int(request.POST['result'])
+        real_class = int( request.POST['type'])
+	real_class -= 1
         filename = request.POST['filename']
-        # flower.feedback_train(data, predicted_class, result, model_str, model_weights, nb_classes, width)
-        return HttpResponse(result + " " + type + " " + filename)
+        if real_class !=-1:
+			flower.feedback_train(data, predicted_class, result, real_class, model_str, model_weights, nb_classes, width)
+        return HttpResponse("Post!")
     else:
         return HttpResponse("No Post!")

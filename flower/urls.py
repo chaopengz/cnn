@@ -20,4 +20,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^upload/','app.views.upload'),
     url(r'^$','app.views.index'),
+    url(r'^result/$','app.views.getResult')
 ]

@@ -158,6 +158,15 @@ def model_train(data_file, model_str, model_weights, nb_classes, width):
     model = offline_learning(model, x_train, x_test, y_train, y_test)
     save_model(model, model_str, model_weights)
 
+def model_test(data_file,model_str, model_weights, nb_classes, width):
+    data_label = cPickle.load(open(data_file, "rb"))
+    x_test = data_label['data']
+    y_test = data_label['label']
+    y_test = np_utils.to_categorical(y_test, nb_classes)
+    model = load_model(model_str, model_weights, width, nb_classes)
+    test_score = model.evaluate(x_test, y_test, verbose=0)
+    print 'test_score', test_score
+	
 
 def model_predict(file_name, model_str, model_weights,nb_classes, width):
     # Test perform in test dataSet
@@ -172,16 +181,23 @@ def model_predict(file_name, model_str, model_weights,nb_classes, width):
         for b in range(width):
             for c in range(width):
                 data[0, a, b, c] = array[b, c, a]
+    predicted_proba = model.predict_proba(data)
     predicted_classes = model.predict_classes(data)
+    print predicted_proba
+    if(predicted_proba.all()<0.4):
+		predicted_classes = -1
+    print predicted_classes
     return data, predicted_classes
 
 
-def feedback_train(data, predicted_classes, is_true, model_str, model_weights,nb_classes, width):
-    label = np.empty((1, 1), dtype="uint8")
+def feedback_train(data, predicted_classes, is_true, type, model_str, model_weights,nb_classes, width):
+    label = np.empty((1, ), dtype="uint8")
     sample_weight = np.empty((1, ), dtype="uint8")
+    label[0] = predicted_classes
+    sample_weight[0] = 1
     if is_true == 0:
-        label[0] = 1-predicted_classes
-        sample_weight[0] = 10
+        label[0] = type
+        sample_weight[0] = 5
     model = load_model(model_str, model_weights, width, nb_classes)
     label = np_utils.to_categorical(label, nb_classes)
     model.fit(data, label, 1, 3, verbose=0, sample_weight=sample_weight)
@@ -193,6 +209,7 @@ if __name__ == '__main__':
     nb_classes = 6
     origin_dir = 'dataset/'
     train_data = 'dataset/data_6.pkl'
+    test_data = 'dataset/data_test.pkl'
     model_str = 'model/model.json'
     model_weights = 'model/weights_6.h5'
     test_file = 'dataset/0/n04971313_31.JPEG'
@@ -200,6 +217,7 @@ if __name__ == '__main__':
     # for i in range(2): convert_data(origin_dir, train_data, width, nb_classes)
     # model_train(train_data, model_str, model_weights, nb_classes, width)
 
-    data, predicted_classes = model_predict(test_file, model_str, model_weights, nb_classes,width)
-    print predicted_classes
-    feedback_train(data, predicted_classes, 1, model_str, model_weights, nb_classes,width)
+   # data, predicted_classes = model_predict(test_file, model_str, model_weights, nb_classes,width)
+    #print predicted_classes
+   # feedback_train(data, predicted_classes, 1, model_str, model_weights, nb_classes,width)
+    model_test(test_data,model_str,model_weights,nb_classes,width)
